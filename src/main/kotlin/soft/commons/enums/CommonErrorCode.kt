@@ -8,14 +8,6 @@ enum class CommonErrorCode(val code: Int) {
     SUCCESS(0),
     INVALID_PARAMETER(1),
     PBKDF2_EMPTY_SECRET(2),
-
-    // 101 ~ 200 MemberAPI
-    MEMBER_API_NOT_EXISTS_MEMBER(101),
-    MEMBER_API_INACTIVE_MEMBER(102),
-    MEMBER_API_NOT_EXISTS_RESULT(103),
-    MEMBER_API_INVALID_AUTH_REQUEST(104),
-
-    MEMBER_API_UNKNOWN(200),
     ;
 
     companion object {
