@@ -1,0 +1,9 @@
+database:
+  redis:
+    hosts: 183.110.51.54,183.110.51.43,183.110.51.186
+    port: 7001
+    timeout: 1
+    pool:
+      maxTotal: 10
+      maxIdle: 10
+      minIdle: 10
