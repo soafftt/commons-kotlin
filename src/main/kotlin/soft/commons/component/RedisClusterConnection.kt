@@ -6,11 +6,11 @@ import io.lettuce.core.codec.StringCodec
 import org.springframework.stereotype.Component
 
 @Component
-open class RedisClusterConnection(private val redisClusterClient: RedisClusterClient?) {
-    var redisConnection: StatefulRedisClusterConnection<String, String>? = null
+class RedisClusterConnection(redisClusterClient: RedisClusterClient?) {
+    final var redisConnection: StatefulRedisClusterConnection<String, String>? = null
         protected set;
 
-    var created: Boolean = false
+    final var created: Boolean = false
         protected set;
 
     init {

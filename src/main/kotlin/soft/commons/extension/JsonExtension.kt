@@ -11,6 +11,7 @@ import soft.commons.enums.CommonErrorCode
 import soft.commons.exeption.CommonErrorException
 import soft.commons.extension.AesExtension.Companion.decryptToAesCbcRfc289
 import soft.commons.extension.AesExtension.Companion.encryptToAesCbcRfc289
+import soft.commons.extension.JsonExtension.Companion.decodeJson
 import soft.commons.extension.JsonExtension.Companion.encodeJwt
 import soft.commons.jwt.CipherPayload
 import soft.commons.jwt.JwtBase
@@ -23,14 +24,11 @@ class JsonExtension {
         private val jsonFactory = JsonFactory()
         private val objectMapper = ObjectMapper(jsonFactory)
 
-        fun <T> String.decodeJson(cls: Class<T>, ignoreException: Boolean = false): T? = when (ignoreException) {
-            true -> try {
-                objectMapper.readValue(this, cls)
-            } catch (e: IOException) {
-                null
+        fun <T> String.decodeJson(cls: Class<T>, ignoreException: Boolean = false): T? =
+            when (ignoreException) {
+                true -> runCatching { objectMapper.readValue(this, cls) }.getOrNull()
+                else -> objectMapper.readValue(this, cls)
             }
-            else -> objectMapper.readValue(this, cls)
-        }
 
         fun String.decodeJson(json: String): JsonNode? = try {
             objectMapper.readTree(json)

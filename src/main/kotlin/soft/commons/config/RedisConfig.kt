@@ -11,9 +11,11 @@ import io.lettuce.core.resource.DefaultClientResources
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.stereotype.Component
 import java.time.Duration
 
 @Configuration
+@Component
 class RedisConfig(
     @Value("\${database.redis.hosts:}") private var hosts: String,
     @Value("\${database.redis.port:6379}") private var port: Int,
