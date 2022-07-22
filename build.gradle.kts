@@ -25,9 +25,9 @@ repositories {
 }
 
 dependencies {
+    implementation("io.ktor:ktor-client-core-jvm:2.0.3")
+    implementation("io.ktor:ktor-client-cio-jvm:2.0.3")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-
-    compileOnly("org.projectlombok:lombok")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
@@ -36,8 +36,6 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     implementation("io.lettuce:lettuce-core:6.1.8.RELEASE")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-    implementation("io.ktor:ktor-client-core:2.0.2")
-    implementation("io.ktor:ktor-client-cio:2.0.2")
     implementation("io.ktor:ktor-client-content-negotiation:2.0.2")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:2.0.2")
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")

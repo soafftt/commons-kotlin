@@ -7,16 +7,9 @@ import org.springframework.stereotype.Component
 
 @Component
 class RedisClusterConnection(redisClusterClient: RedisClusterClient?) {
-    final var redisConnection: StatefulRedisClusterConnection<String, String>? = null
-        protected set;
+    final val redisConnection: StatefulRedisClusterConnection<String, String>? =
+        redisClusterClient?.connect(StringCodec.UTF8)
 
-    final var created: Boolean = false
-        protected set;
-
-    init {
-        if (redisClusterClient != null) {
-            this.redisConnection = redisClusterClient.connect(StringCodec.UTF8)
-            this.created = true
-        }
-    }
+    final val created: Boolean =
+        redisClusterClient != null
 }

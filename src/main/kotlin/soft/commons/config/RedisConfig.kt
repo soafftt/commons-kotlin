@@ -21,46 +21,46 @@ class RedisConfig(
     @Value("\${database.redis.port:6379}") private var port: Int,
     @Value("\${database.redis.timeout:3}") private var timeout: Long
 ) {
-    private var nodes: List<RedisURI> = if (this.hosts.isNotEmpty()) {
-        hosts.split(",")
-            .map { RedisURI.create(it, port) }
-            .toList()
-    } else {
-        emptyList()
-    }
+    private val nodes: List<RedisURI> =
+        when(this.hosts.isNotEmpty()) {
+            true -> hosts.split(",")
+                .map { RedisURI.create(it, port) }
+                .toList()
+            else -> emptyList()
+        }
 
-    private var clientResources: ClientResources = DefaultClientResources.builder().build()
-    private var clusterTopologyRefreshOptions: ClusterTopologyRefreshOptions = ClusterTopologyRefreshOptions.builder()
-        .enablePeriodicRefresh(Duration.ofSeconds(10))
-        .enableAdaptiveRefreshTrigger()
-        .build()
+    private val clientResources: ClientResources =
+        DefaultClientResources.builder().build()
 
-    private fun createClusterClient(autoReconnect: Boolean = false): RedisClusterClient {
-        val clusterClient = RedisClusterClient.create(this.clientResources, this.nodes);
+    private val clusterTopologyRefreshOptions: ClusterTopologyRefreshOptions =
+        ClusterTopologyRefreshOptions.builder()
+            .enablePeriodicRefresh(Duration.ofSeconds(10))
+            .enableAdaptiveRefreshTrigger()
+            .build()
 
-        clusterClient.setOptions(
-            ClusterClientOptions.builder()
-                .autoReconnect(autoReconnect)
-                .topologyRefreshOptions(this.clusterTopologyRefreshOptions)
-                .socketOptions(SocketOptions.builder().connectTimeout(Duration.ofSeconds(this.timeout)).build())
-                .timeoutOptions(TimeoutOptions.enabled(Duration.ofSeconds(this.timeout)))
-                .build()
-        );
-
-        return clusterClient;
-    }
-
-    @Bean(destroyMethod = "shutdown")
-    fun redisClusterClient(): RedisClusterClient? = if (hosts.isNotEmpty()) {
-        createClusterClient(true)
-    } else {
-        null
-    }
+    private fun createClusterClient(autoReconnect: Boolean = false): RedisClusterClient =
+        RedisClusterClient.create(this.clientResources, this.nodes).also {
+            it.setOptions(
+                ClusterClientOptions.builder()
+                    .autoReconnect(autoReconnect)
+                    .topologyRefreshOptions(clusterTopologyRefreshOptions)
+                    .socketOptions(SocketOptions.builder().connectTimeout(Duration.ofSeconds(timeout)).build())
+                    .timeoutOptions(TimeoutOptions.enabled(Duration.ofSeconds(timeout)))
+                    .build()
+            )
+        }
 
     @Bean(destroyMethod = "shutdown")
-    fun redisClusterClientDisableAuthReconnect(): RedisClusterClient? = if (hosts.isNotEmpty()) {
-        createClusterClient()
-    } else {
-        null
-    }
+    fun redisClusterClient(): RedisClusterClient? =
+        when(hosts.isNotEmpty()) {
+            true -> createClusterClient(true)
+            else -> null
+        }
+
+    @Bean(destroyMethod = "shutdown")
+    fun redisClusterClientDisableAuthReconnect(): RedisClusterClient? =
+        when(hosts.isNotEmpty()) {
+            true -> createClusterClient()
+            else -> null
+        }
 }

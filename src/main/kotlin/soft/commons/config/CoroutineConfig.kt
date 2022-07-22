@@ -13,6 +13,7 @@ class CoroutineConfig(
     @Value("\${coroutine.limitParallelism.db:128}") val dbCoroutineLimitParallelism: Int,
     @Value("\${coroutine.limitParallelism.dynamo:128}") val redisCoroutineLimitParallelism: Int,
     @Value("\${coroutine.limitParallelism.redis:128}") val dynamoCoroutineLimitParallelism: Int,
+    @Value("\${coroutine.limitParallelism.redis:128}") val logCoroutineLimitParallelism: Int,
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Bean
@@ -25,4 +26,8 @@ class CoroutineConfig(
     @OptIn(ExperimentalCoroutinesApi::class)
     @Bean
     fun dynamoIO() = Dispatchers.IO.limitedParallelism(dynamoCoroutineLimitParallelism)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Bean
+    fun logIO() = Dispatchers.IO.limitedParallelism(logCoroutineLimitParallelism)
 }

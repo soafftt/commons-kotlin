@@ -29,3 +29,4 @@ coroutine:
     db: 256
     dynamo: 256
     redis: 256
+    log: 256

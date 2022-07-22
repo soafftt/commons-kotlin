@@ -6,13 +6,10 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
-import soft.commons.crypto.Rfc2898Driver
-import soft.commons.enums.CommonErrorCode
-import soft.commons.exeption.CommonErrorException
+import soft.commons.enums.ErrorCode
+import soft.commons.exeption.ErrorException
 import soft.commons.extension.AesExtension.Companion.decryptToAesCbcRfc289
 import soft.commons.extension.AesExtension.Companion.encryptToAesCbcRfc289
-import soft.commons.extension.JsonExtension.Companion.decodeJson
-import soft.commons.extension.JsonExtension.Companion.encodeJwt
 import soft.commons.jwt.CipherPayload
 import soft.commons.jwt.JwtBase
 import java.io.IOException
@@ -67,7 +64,7 @@ class JsonExtension {
                 .setClaims(claims)
                 .compact() ?: ""
         } catch (ex: Exception) {
-            throw CommonErrorException(CommonErrorCode.JWT_ENCODE.code, throwable = ex)
+            throw ErrorException(ErrorCode.JWT_ENCODE.code, throwable = ex)
         }
 
         fun String.decodeJwtToMap(key: String): Map<String, Any?> = decodeJwtToClams(this, key)
@@ -76,11 +73,11 @@ class JsonExtension {
             val map = this.decodeJwtToMap(key)
             val json = map.encodeJson()
 
-            json.decodeJson(cls) ?: throw CommonErrorException(CommonErrorCode.JWT_DECODE.code)
-        } catch (ex: CommonErrorException) {
+            json.decodeJson(cls) ?: throw ErrorException(ErrorCode.JWT_DECODE.code)
+        } catch (ex: ErrorException) {
             throw ex
         } catch (ex: Exception) {
-            throw CommonErrorException(CommonErrorCode.JWT_DECODE.code, throwable = ex)
+            throw ErrorException(ErrorCode.JWT_DECODE.code, throwable = ex)
         }
 
         private fun decodeJwtToClams(token: String, key: String): Map<String, Any?> = try {
@@ -90,7 +87,7 @@ class JsonExtension {
                 .parseClaimsJws(token)
                 .body;
         } catch (ex: Exception) {
-            throw CommonErrorException(CommonErrorCode.JWT_DECODE.code, throwable = ex)
+            throw ErrorException(ErrorCode.JWT_DECODE.code, throwable = ex)
         }
 
         fun JwtBase.encodeJwtWithPayloadAesCrypt(jwtKey: String, aesPwd: String, aesSalt: String): String = try {
@@ -99,10 +96,10 @@ class JsonExtension {
                 .let {
                     hashMapOf<String, Any?>(Pair("name", it)).encodeJwt(jwtKey)
                 }
-        } catch (ex: CommonErrorException) {
+        } catch (ex: ErrorException) {
             throw ex
         } catch (ex: Exception) {
-            throw CommonErrorException(CommonErrorCode.JWT_ENCODE.code, throwable = ex)
+            throw ErrorException(ErrorCode.JWT_ENCODE.code, throwable = ex)
         }
 
         fun <T> String.decodeJwtWithPayloadAesCrypt(jwtKey: String, aesPwd: String, aesSalt: String, cls: Class<T>): T = try {
@@ -110,10 +107,10 @@ class JsonExtension {
                 .run {
                     cipherText.decryptToAesCbcRfc289(aesPwd, aesSalt)
                 }.decodeJson(cls)!!
-        } catch (ex: CommonErrorException) {
+        } catch (ex: ErrorException) {
             throw ex
         } catch (ex: Exception) {
-            throw CommonErrorException(CommonErrorCode.JWT_DECODE.code, throwable = ex)
+            throw ErrorException(ErrorCode.JWT_DECODE.code, throwable = ex)
         }
     }
 }
