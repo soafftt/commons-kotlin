@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Lazy
 import java.time.Duration
 
+@Lazy
 @Configuration
 class LettuceConfig(
     @Value("\${redis.hosts:}") private val hosts: String,

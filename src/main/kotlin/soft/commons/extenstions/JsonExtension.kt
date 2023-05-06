@@ -10,7 +10,7 @@ import java.lang.RuntimeException
 
 class JsonExtension {
     companion object {
-        private const val JSON_INIT_STRING = "{}"
+        const val JSON_INIT_STRING = "{}"
 
         private val log: Logger = LoggerFactory.getLogger(JsonExtension::class.java)
 
