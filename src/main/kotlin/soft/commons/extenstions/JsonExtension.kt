@@ -5,8 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import soft.commons.enums.CommonsErrorCode
+import soft.commons.exception.CommonsRuntimeException
 import java.lang.Exception
-import java.lang.RuntimeException
 
 class JsonExtension {
     companion object {
@@ -17,7 +18,7 @@ class JsonExtension {
         private val jsonFactory: JsonFactory = JsonFactory()
         private val objectMapper: ObjectMapper = ObjectMapper(jsonFactory)
 
-        fun <T> String.deserializeJson(cls: Class<T>, ignoreException: Boolean): T? =
+        fun <T> String.deserializeJson(cls: Class<T>, ignoreException: Boolean = true): T? =
             runCatching {
                 objectMapper.readValue(this, cls)
             }.getOrElse { throwable ->
@@ -25,17 +26,17 @@ class JsonExtension {
 
                 when(ignoreException) {
                     true -> null
-                    else -> throw RuntimeException("")
+                    else -> throw CommonsRuntimeException(CommonsErrorCode.JSON_DESERIALIZE_ERROR, throwable)
                 }
             }
 
-        fun <T> JsonNode.deserializeJson(cls: Class<T>, ignoreException: Boolean): T? =
+        fun <T> JsonNode.deserializeJson(cls: Class<T>, ignoreException: Boolean = true): T? =
             try {
                 objectMapper.treeToValue(this, cls)
             } catch(ex: Exception) {
                 when(ignoreException) {
                     true -> null
-                    else -> throw RuntimeException("")
+                    else -> throw CommonsRuntimeException(CommonsErrorCode.JSON_DESERIALIZE_ERROR, ex)
                 }
             }
 
@@ -51,11 +52,11 @@ class JsonExtension {
             } catch(ex: Exception) {
                 when(ignoreException) {
                     true -> emptyList<T>()
-                    else -> throw RuntimeException("")
+                    else -> throw CommonsRuntimeException(CommonsErrorCode.JSON_DESERIALIZE_ERROR, ex)
                 }
             }
 
-        fun Any.toJson(ignoreException: Boolean = true): String =
+        fun Any.toJson(ignoreException: Boolean = false): String =
             runCatching {
                 objectMapper.writeValueAsString(this)
             }.getOrElse {
@@ -63,7 +64,7 @@ class JsonExtension {
 
                 when(ignoreException) {
                     true -> JSON_INIT_STRING
-                    else -> throw RuntimeException("json parse exception")
+                    else -> throw CommonsRuntimeException(CommonsErrorCode.JSON_SERIALIZE_ERROR, it)
                 }
             }
     }
