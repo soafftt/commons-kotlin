@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Lazy
 @Configuration
 class CoroutineConfig(
     @Value("\${coroutine.io.db: 64}") private val ioDBParallelism: Int,
+    @Value("\${coroutine.io.redis: 64}") private val ioRedisParallelism: Int,
     @Value("\${coroutine.io.logging: 64}") private val ioLoggingParallelism: Int,
     @Value("\${coroutine.io.async: 64}") private val ioAsyncParallelism: Int,
     @Value("\${coroutine.io.http: 64}") private val ioHttpParallelism: Int
@@ -19,6 +20,11 @@ class CoroutineConfig(
     @Lazy
     @Bean
     fun ioDB() = Dispatchers.IO.limitedParallelism(this.ioDBParallelism)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Lazy
+    @Bean
+    fun ioRedis() = Dispatchers.IO.limitedParallelism(this.ioRedisParallelism)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Lazy
