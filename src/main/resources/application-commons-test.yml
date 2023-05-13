@@ -1,2 +1,15 @@
 redis:
-    hosts:127.0.0.1:6379,127.0.0.1:6380,127.0.0.1:6381
+    hosts: 127.0.0.1:6379,127.0.0.1:6380,127.0.0.1:6381
+    password:
+    ssl: false
+    timeout: 1
+
+
+coroutine:
+  io:
+    common: 64
+    db: 256
+    redis: 256
+    logging: 64
+    async: 256
+    http: 256

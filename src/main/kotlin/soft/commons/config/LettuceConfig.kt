@@ -20,28 +20,31 @@ import java.time.Duration
 @Configuration
 class LettuceConfig(
     @Value("\${redis.hosts:}") private val hosts: String,
-    @Value("\${redis.password:}") private val password: CharSequence,
-    @Value("\${redis.withSsl:false}") private val withSsl: Boolean,
-    @Value("\${redis.timeout:3}") private val timeout: Long
+    @Value("\${redis.password: }") private val password: CharSequence,
+    @Value("\${redis.ssl: false}") private val withSsl: Boolean,
+    @Value("\${redis.timeout: 1}") private val timeout: Long
 ) {
+    private val topologyRefreshSeconds: Long = 10L
+
     @Lazy
     @Bean(destroyMethod = "shutdown")
     fun redisClusterClient(): RedisClusterClient =
         RedisClusterClient.create(
             DefaultClientResources.builder().build(),
-            hosts.split(",").map {
+            hosts.split(",").map { it ->
                 val hostPort = it.split(":");
-                RedisURI.builder().withHost(hostPort[0])
-                    .withSsl(this.withSsl).also { builder ->
-                        if (hostPort.size == 2 ) {
-                            builder.withPort(hostPort[1].toInt())
-                        }
+                RedisURI.builder().also { builder ->
+                    builder.withSsl(this.withSsl)
+                    builder.withHost(hostPort[0])
 
-                        if (password.isNotEmpty()) {
-                            builder.withPassword(password)
-                        }
+                    if (hostPort.size == 2) {
+                        builder.withPort(hostPort[1].toInt())
                     }
-                    .build()
+
+                    if (password.isNotEmpty()) {
+                        builder.withPassword(password)
+                    }
+                }.build()
             }.toList()
         ).also {
             it.setOptions(
@@ -49,7 +52,7 @@ class LettuceConfig(
                     .autoReconnect(true)
                     .topologyRefreshOptions(
                         ClusterTopologyRefreshOptions.builder()
-                            .enablePeriodicRefresh(Duration.ofSeconds(10))
+                            .enablePeriodicRefresh(Duration.ofSeconds(topologyRefreshSeconds))
                             .enableAdaptiveRefreshTrigger()
                             .build()
                     )
