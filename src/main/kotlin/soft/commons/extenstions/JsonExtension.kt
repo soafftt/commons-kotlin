@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import soft.commons.enums.CommonsErrorCode
-import soft.commons.exception.CommonsRuntimeException
+import soft.commons.enums.ErrorCode
+import soft.commons.exception.CommonsException
 import java.lang.Exception
 
 class JsonExtension {
@@ -26,7 +26,7 @@ class JsonExtension {
 
                 when(ignoreException) {
                     true -> null
-                    else -> throw CommonsRuntimeException(CommonsErrorCode.JSON_DESERIALIZE_ERROR, throwable)
+                    else -> throw CommonsException(ErrorCode.JSON_DESERIALIZE_ERROR, throwable)
                 }
             }
 
@@ -36,7 +36,7 @@ class JsonExtension {
             } catch(ex: Exception) {
                 when(ignoreException) {
                     true -> null
-                    else -> throw CommonsRuntimeException(CommonsErrorCode.JSON_DESERIALIZE_ERROR, ex)
+                    else -> throw CommonsException(ErrorCode.JSON_DESERIALIZE_ERROR, ex)
                 }
             }
 
@@ -52,7 +52,7 @@ class JsonExtension {
             } catch(ex: Exception) {
                 when(ignoreException) {
                     true -> emptyList<T>()
-                    else -> throw CommonsRuntimeException(CommonsErrorCode.JSON_DESERIALIZE_ERROR, ex)
+                    else -> throw CommonsException(ErrorCode.JSON_DESERIALIZE_ERROR, ex)
                 }
             }
 
@@ -64,7 +64,7 @@ class JsonExtension {
 
                 when(ignoreException) {
                     true -> JSON_INIT_STRING
-                    else -> throw CommonsRuntimeException(CommonsErrorCode.JSON_SERIALIZE_ERROR, it)
+                    else -> throw CommonsException(ErrorCode.JSON_SERIALIZE_ERROR, it)
                 }
             }
     }

@@ -4,6 +4,7 @@ import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
+import java.text.MessageFormat
 import java.util.*
 
 class StringExtension {
@@ -53,5 +54,8 @@ class StringExtension {
                 }.getOrDefault(this)
                 else -> this
             }
+
+        fun String.formatUsageMessageFormat(vararg args: Any): String =
+            MessageFormat.format(this, args)
     }
 }

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%highlight(%-5level) %d{MM-dd HH:mm:ss.SSS} %cyan([%thread]) %msg %yellow(%logger{36}\(%file:%line\)) %n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="AccessLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./log/access.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>log/access-%d{yyyy-MM-dd_HH}.%i.log</fileNamePattern>
+            <maxFileSize>512MB</maxFileSize>
+            <maxHistory>72</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ErrorLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./log/error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>log/error-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>512MB</maxFileSize>
+            <maxHistory>3</maxHistory>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp/>
+                <message/>
+                <loggerName/>
+                <threadName/>
+                <logLevel/>
+                <logLevelValue/>
+                <stackTrace/>
+                <logstashMarkers/>
+            </providers>
+        </encoder>
+    </appender>
+
+    <appender name="Async" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="AccessLog"/>
+        <queueSize>2048</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <logger name="reactor.netty.http.server.AccessLog" level="TRACE" additivity="false">
+        <appender-ref ref="Async"/>
+    </logger>
+
+    <logger name="ErrorLogger" level="WARN" additivity="false">
+        <appender-ref ref="ErrorLog"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="Console"/>
+    </root>
+</configuration>
