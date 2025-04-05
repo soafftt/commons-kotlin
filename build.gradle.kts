@@ -11,6 +11,10 @@ repositories {
 allprojects {
     apply(plugin = "kotlin")
 
+    kotlin {
+        jvmToolchain(21)
+    }
+
     repositories {
         mavenCentral()
     }
