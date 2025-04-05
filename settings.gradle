@@ -1,1 +1,22 @@
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+}
 rootProject.name = 'commons'
+include(":common")
+
+include(":clients")
+
+include(":clients:http")
+include(":clients:http:ktor")
+include(":clients:http:webclient")
+
+include(":clients:cache")
+
+include(":clients:cache:redis-lettuce")
+include(":clients:cache:valkey-glide")
+
+include(":clients:db")
+
+include(":clients:db:r2dbc")
+include(":clients:db:r2dbc:r2dbc-single")
+include(":clients:db:r2dbc:r2dbc-multi")
