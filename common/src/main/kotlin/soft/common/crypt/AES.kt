@@ -1,5 +1,7 @@
 package soft.common.crypt
 
+import soft.common.crypt.enums.AESTransformation
+import soft.common.crypt.enums.CryptStringMode
 import soft.common.string.Base64Mode
 import soft.common.string.toBase64Array
 import soft.common.string.toBase64String
@@ -9,26 +11,6 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 private const val AES_KEY_SPEC_ALGORITHM = "AES"
-
-object AES {
-    enum class Transformation(val transformation: String) {
-        CBC("AES/CBC/PKCS5Padding"),
-        CTR("AES/CTR/NoPadding"),
-        RFC2898("AES/CBC/PKCS5Padding")
-    }
-
-    enum class StringMode {
-        DEFAULT,
-        BASE64,
-        BASE64_MIME,
-        HEX,
-        ;
-    }
-
-    val instanceOf: (Transformation) -> Cipher = { transformation ->
-        Cipher.getInstance(transformation.transformation)
-    }
-}
 
 /***
  * @this planText
@@ -40,67 +22,40 @@ object AES {
 @OptIn(ExperimentalStdlibApi::class)
 fun String.encryptAES(
     key: ByteArray,
-    transformation: AES.Transformation,
+    transformation: AESTransformation,
     charset: Charset = Charsets.UTF_8,
-    mode: AES.StringMode = AES.StringMode.DEFAULT
+    mode: CryptStringMode = CryptStringMode.BASE64
 ): String {
     val encryptedBuffer = this.encryptAES(key, transformation, charset)
     return when (mode) {
-        AES.StringMode.HEX -> encryptedBuffer.toHexString()
-        AES.StringMode.BASE64 -> encryptedBuffer.toBase64String()
-        AES.StringMode.BASE64_MIME -> encryptedBuffer.toBase64String(mode = Base64Mode.MIME)
-        else -> String(encryptedBuffer, charset)
+        CryptStringMode.HEX -> encryptedBuffer.toHexString()
+        CryptStringMode.BASE64 -> encryptedBuffer.toBase64String()
+        CryptStringMode.BASE64_MIME -> encryptedBuffer.toBase64String(mode = Base64Mode.MIME)
     }
 }
 
 fun String.encryptAES(
     key: ByteArray,
-    transformation: AES.Transformation,
+    transformation: AESTransformation,
     charset: Charset = Charsets.UTF_8,
 ): ByteArray =
     this.toByteArray(charset).encryptAES(key, transformation)
 
 
-fun ByteArray.encryptAES(key: ByteArray, transformation: AES.Transformation): ByteArray {
-    val cipher = AES.instanceOf(transformation)
+fun ByteArray.encryptAES(key: ByteArray, transformation: AESTransformation): ByteArray =
+    key.makeAESCipher(transformation, Cipher.ENCRYPT_MODE).doFinal(this)
 
-    val keySpec = SecretKeySpec(key, AES_KEY_SPEC_ALGORITHM)
-    val ivParameterSpec = IvParameterSpec(keySpec.encoded)
-
-    cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivParameterSpec)
-    return cipher.doFinal(this)
-}
 
 @OptIn(ExperimentalStdlibApi::class)
 fun String.decryptAES(
     key: ByteArray,
-    transformation: AES.Transformation,
-    charset: Charset = Charsets.UTF_8,
-    fromStringMode: AES.StringMode = AES.StringMode.DEFAULT,
-    toStringMode: AES.StringMode = AES.StringMode.DEFAULT
-): String {
-    val decryptBuffer = this.decryptAES(key, transformation, charset, fromStringMode)
-
-    return when (toStringMode) {
-        AES.StringMode.HEX -> decryptBuffer.toHexString()
-        AES.StringMode.BASE64 -> decryptBuffer.toBase64String()
-        AES.StringMode.BASE64_MIME -> decryptBuffer.toBase64String(mode = Base64Mode.MIME)
-        else -> String(decryptBuffer, charset)
-    }
-}
-
-@OptIn(ExperimentalStdlibApi::class)
-fun String.decryptAES(
-    key: ByteArray,
-    transformation: AES.Transformation,
-    charset: Charset = Charsets.UTF_8,
-    fromStringMode: AES.StringMode = AES.StringMode.DEFAULT
+    transformation: AESTransformation,
+    fromStringMode: CryptStringMode = CryptStringMode.BASE64
 ): ByteArray {
     val sourceBuffer = when (fromStringMode) {
-        AES.StringMode.HEX -> this.hexToByteArray()
-        AES.StringMode.BASE64 -> this.toBase64Array()
-        AES.StringMode.BASE64_MIME -> this.toBase64Array(mode = Base64Mode.MIME)
-        else -> this.toByteArray(charset)
+        CryptStringMode.HEX -> this.hexToByteArray()
+        CryptStringMode.BASE64 -> this.toBase64Array()
+        CryptStringMode.BASE64_MIME -> this.toBase64Array(mode = Base64Mode.MIME)
     }
 
     return sourceBuffer.decryptAES(key, transformation)
@@ -108,14 +63,19 @@ fun String.decryptAES(
 
 fun ByteArray.decryptAES(
     key: ByteArray,
-    transformation: AES.Transformation,
-): ByteArray {
-    val cipher = AES.instanceOf(transformation)
+    transformation: AESTransformation,
+): ByteArray =
+    key.makeAESCipher(transformation, Cipher.DECRYPT_MODE)
+        .doFinal(this)
 
-    val keySpec = SecretKeySpec(key, AES_KEY_SPEC_ALGORITHM)
-    val ivParameterSpec = IvParameterSpec(keySpec.encoded)
 
-    cipher.init(Cipher.DECRYPT_MODE, keySpec, ivParameterSpec)
-    return cipher.doFinal(this)
-}
+private fun ByteArray.makeAESCipher(
+    transformation: AESTransformation,
+    cipherMode: Int = Cipher.ENCRYPT_MODE
+): Cipher =
+    Cipher.getInstance(transformation.transformationName).also { cipher ->
+        val keySpec = SecretKeySpec(this, AES_KEY_SPEC_ALGORITHM)
+        val ivParameterSpec = IvParameterSpec(keySpec.encoded)
 
+        cipher.init(cipherMode, keySpec, ivParameterSpec)
+    }
