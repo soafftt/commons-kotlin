@@ -1,4 +1,4 @@
-package soft.common.crypt.enums
+package soft.common.crypto.enums
 
 enum class AESTransformation(val transformationName: String) {
     CBC("AES/CBC/PKCS5Padding"),

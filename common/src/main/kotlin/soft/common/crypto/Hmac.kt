@@ -1,7 +1,7 @@
-package soft.common.crypt
+package soft.common.crypto
 
-import soft.common.crypt.enums.CryptStringMode
-import soft.common.crypt.enums.HmacAlgorithm
+import soft.common.crypto.enums.CryptStringMode
+import soft.common.crypto.enums.HmacAlgorithm
 import soft.common.string.Base64Mode
 import soft.common.string.toBase64Array
 import soft.common.string.toBase64String

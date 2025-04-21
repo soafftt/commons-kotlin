@@ -1,4 +1,4 @@
-package soft.common.crypt.enums
+package soft.common.crypto.enums
 
 enum class HmacAlgorithm(val algorithmName: String) {
     MD5("HmacMD5"),

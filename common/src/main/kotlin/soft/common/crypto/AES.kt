@@ -1,7 +1,7 @@
-package soft.common.crypt
+package soft.common.crypto
 
-import soft.common.crypt.enums.AESTransformation
-import soft.common.crypt.enums.CryptStringMode
+import soft.common.crypto.enums.AESTransformation
+import soft.common.crypto.enums.CryptStringMode
 import soft.common.string.Base64Mode
 import soft.common.string.toBase64Array
 import soft.common.string.toBase64String

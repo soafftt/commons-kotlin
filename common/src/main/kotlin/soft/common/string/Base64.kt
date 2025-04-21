@@ -9,14 +9,17 @@ enum class Base64Mode {
     ;
 }
 
-private val base64Encoder = Base64.getEncoder()
-private val base64Decoder = Base64.getDecoder()
+private val base64Encoder: Base64.Encoder by lazy(LazyThreadSafetyMode.PUBLICATION) { Base64.getEncoder() }
+private val base64Decoder: Base64.Decoder by lazy(LazyThreadSafetyMode.PUBLICATION) { Base64.getDecoder() }
 
-private val base64MimeEncoder = Base64.getMimeEncoder()
-private val base64MimeDecoder = Base64.getMimeDecoder()
+private val base64MimeEncoder: Base64.Encoder by lazy(LazyThreadSafetyMode.PUBLICATION) { Base64.getMimeEncoder() }
+private val base64MimeDecoder: Base64.Decoder by lazy(LazyThreadSafetyMode.PUBLICATION) { Base64.getMimeDecoder() }
 
 
-fun String.toBase64String(mode: Base64Mode = Base64Mode.DEFAULT, fromCharset: Charset = Charsets.UTF_8): String =
+fun String.toBase64String(
+    mode: Base64Mode = Base64Mode.DEFAULT,
+    fromCharset: Charset = Charsets.UTF_8
+): String =
     toByteArray(fromCharset).let {
         if (mode == Base64Mode.DEFAULT) {
             base64Encoder.encodeToString(it)

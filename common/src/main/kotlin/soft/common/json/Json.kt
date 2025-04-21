@@ -3,12 +3,15 @@ package soft.common.json
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 
+const val JSON_INITIALIZE = "{}"
 
-private const val JSON_INITIALIZE = "{}"
+val objectMapper : ObjectMapper by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    ObjectMapper(jsonFactory)
+}
 
-private val jsonFactory = JsonFactory()
-private val objectMapper = ObjectMapper(jsonFactory)
+private val jsonFactory : JsonFactory by lazy(LazyThreadSafetyMode.PUBLICATION) { JsonFactory() }
 
 fun <T> String.readJsonToObject(cls: Class<T>, ignoreException: Boolean = false): T? =
     runCatching {
@@ -52,7 +55,7 @@ fun <T> String.readJsonToList(cls: Class<T>, ignoreException: Boolean = false): 
             throw it
         }
 
-        emptyList<T>()
+        emptyList()
     }
 
 
