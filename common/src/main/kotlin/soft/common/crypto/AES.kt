@@ -2,9 +2,9 @@ package soft.common.crypto
 
 import soft.common.crypto.enums.AESTransformation
 import soft.common.crypto.enums.CryptStringMode
-import soft.common.string.Base64Mode
-import soft.common.string.toBase64Array
-import soft.common.string.toBase64String
+import soft.common.encoder.Base64Mode
+import soft.common.encoder.toBase64Array
+import soft.common.encoder.toBase64String
 import java.nio.charset.Charset
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec

@@ -2,9 +2,9 @@ package soft.common.crypto
 
 import soft.common.crypto.enums.CryptStringMode
 import soft.common.crypto.enums.HmacAlgorithm
-import soft.common.string.Base64Mode
-import soft.common.string.toBase64Array
-import soft.common.string.toBase64String
+import soft.common.encoder.Base64Mode
+import soft.common.encoder.toBase64Array
+import soft.common.encoder.toBase64String
 import java.nio.charset.Charset
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
@@ -23,11 +23,11 @@ fun String.matchHmac(
         CryptStringMode.HEX -> targetHashString.hexToByteArray()
     }
 
-    if (sourceHashBuffer.size != targetHashBuffer.size) {
+    return if (sourceHashBuffer.size != targetHashBuffer.size) {
         return false
+    } else {
+        targetHashBuffer.contentEquals(sourceHashBuffer)
     }
-
-    return targetHashBuffer.contentEquals(sourceHashBuffer)
 }
 
 @OptIn(ExperimentalStdlibApi::class)
