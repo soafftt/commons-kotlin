@@ -6,6 +6,7 @@ import soft.common.encoder.Base64Mode
 import soft.common.encoder.toBase64Array
 import soft.common.encoder.toBase64String
 import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
@@ -23,7 +24,7 @@ private const val AES_KEY_SPEC_ALGORITHM = "AES"
 fun String.encryptAES(
     key: ByteArray,
     transformation: AESTransformation,
-    charset: Charset = Charsets.UTF_8,
+    charset: Charset = StandardCharsets.UTF_8,
     mode: CryptStringMode = CryptStringMode.BASE64
 ): String {
     val encryptedBuffer = this.encryptAES(key, transformation, charset)
@@ -37,7 +38,7 @@ fun String.encryptAES(
 fun String.encryptAES(
     key: ByteArray,
     transformation: AESTransformation,
-    charset: Charset = Charsets.UTF_8,
+    charset: Charset = StandardCharsets.UTF_8,
 ): ByteArray =
     this.toByteArray(charset).encryptAES(key, transformation)
 
