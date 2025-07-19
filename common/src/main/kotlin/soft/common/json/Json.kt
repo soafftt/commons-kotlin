@@ -3,11 +3,28 @@ package soft.common.json
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 const val JSON_INITIALIZE = "{}"
 
 val objectMapper : ObjectMapper by lazy(LazyThreadSafetyMode.PUBLICATION) {
     ObjectMapper(jsonFactory)
+        .registerModules(
+            KotlinModule.Builder().build(),
+            JavaTimeModule().apply {
+                addSerializer(
+                    LocalDate::class.java,
+                    LocalDateSerializer(
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                    )
+                )
+            }
+        )
+
 }
 
 private val jsonFactory : JsonFactory by lazy(LazyThreadSafetyMode.PUBLICATION) { JsonFactory() }
