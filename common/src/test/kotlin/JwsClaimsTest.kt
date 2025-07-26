@@ -1,8 +1,13 @@
 import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.nimbusds.jwt.JWTClaimsSet
 import org.junit.jupiter.api.Test
 import soft.common.json.writeJson
+import soft.common.jwt.JwtBaseClaims
+import soft.common.jwt.signer.ECSigner
+import soft.common.jwt.signer.toObject
+import kotlin.math.sign
 
 class JwsClaimsTest {
 
@@ -11,9 +16,29 @@ class JwsClaimsTest {
         val claims = TestClaims("1", "2") as SuperClaims
         val f = test(claims)
         val jwtClaims = JWTClaimsSet.Builder()
-
             .build()
-        println(f)
+
+
+
+    }
+
+    @Test
+    fun ecSigner() {
+        val signer = ECSigner.of("ABCDEF", "1")
+        val jwt = signer.serialize({ it.build() }) {
+            it.claim("name", "ABCDEF")
+            it.claim("b", "ABCDEF")
+            it.issuer("BCCDDFF")
+            it.build()
+        }
+        println(jwt)
+
+        println(signer.verify(jwt))
+
+        val claimsSet = signer.getClaimsSetWithVerify(jwt)
+        val d = claimsSet.toObject(TestClaims::class.java)
+
+        println(d)
     }
 
 
@@ -26,9 +51,10 @@ class JwsClaimsTest {
 open class SuperClaims
 
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 class TestClaims @JsonCreator constructor (
-    @JsonProperty("cd")
-    val c: String,
-    @JsonProperty("de")
-    val d: String
-) : SuperClaims()
+    @JsonProperty("cd", defaultValue = "null")
+    val c: String?,
+    @JsonProperty("de", defaultValue = "null")
+    val d: String?
+) : JwtBaseClaims()
