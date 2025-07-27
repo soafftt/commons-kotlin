@@ -4,10 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.nimbusds.jwt.JWTClaimsSet
 import org.junit.jupiter.api.Test
 import soft.common.json.writeJson
-import soft.common.jwt.JwtBaseClaims
-import soft.common.jwt.signer.ECSigner
-import soft.common.jwt.signer.toObject
-import kotlin.math.sign
+import soft.common.jwt.claims.JwtBaseClaims
+import soft.common.jwt.ECSigner
+import soft.common.jwt.toObject
 
 class JwsClaimsTest {
 
@@ -17,9 +16,6 @@ class JwsClaimsTest {
         val f = test(claims)
         val jwtClaims = JWTClaimsSet.Builder()
             .build()
-
-
-
     }
 
     @Test

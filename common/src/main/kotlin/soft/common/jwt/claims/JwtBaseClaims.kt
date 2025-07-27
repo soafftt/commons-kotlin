@@ -1,10 +1,9 @@
-package soft.common.jwt
+package soft.common.jwt.claims
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.nimbusds.jwt.JWTClaimNames
-import java.util.*
+import java.util.Date
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 open class JwtBaseClaims {

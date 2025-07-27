@@ -4,4 +4,6 @@ package soft.common.jwt.annotation
 @Retention(AnnotationRetention.RUNTIME)
 annotation class ClaimsEncrypt(
     val isEncrypted: Boolean = false,
+    val encryptKey: String = "",
+    val decryptKey: String = "",
 )

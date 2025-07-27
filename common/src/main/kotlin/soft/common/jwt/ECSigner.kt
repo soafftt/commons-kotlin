@@ -1,4 +1,4 @@
-package soft.common.jwt.signer
+package soft.common.jwt
 
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSSigner
@@ -7,33 +7,43 @@ import com.nimbusds.jose.crypto.ECDSASigner
 import com.nimbusds.jose.crypto.ECDSAVerifier
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
-import com.nimbusds.jose.jwk.gen.ECKeyGenerator
+import soft.common.jwt.AbstractSigner
+import java.security.cert.X509Certificate
 
 
 class ECSigner private constructor(
-    keyId: String,
+    ecKey: ECKey,
     curve: Curve,
     algorithm: JWSAlgorithm,
 ) : AbstractSigner() {
 
-    private val ecJWK: ECKey = ECKeyGenerator(curve).keyID(keyId).generate()
-    private val ecPublicKey: ECKey = ecJWK.toPublicJWK()
+    private val ecPublicKey: ECKey = ecKey.toPublicJWK()
 
-    override val signer: JWSSigner = ECDSASigner(ecJWK)
+    override val signer: JWSSigner = ECDSASigner(ecKey)
     override val verifier: JWSVerifier = ECDSAVerifier(ecPublicKey)
     override val algorithm: JWSAlgorithm = algorithm
 
     companion object {
         fun of(
             signerName: String,
-            keyId: String,
+            secretKey: String,
             curve: Curve = Curve.P_256,
             algorithm: JWSAlgorithm = JWSAlgorithm.ES256,
-        ): ISigner {
+        ) : ISigner {
             return getSignerOrPutIfAbsent(signerName) {
-                ECSigner(keyId, curve, algorithm)
+                ECSigner(ECKey.parse(secretKey), curve, algorithm)
             }
         }
 
+        fun of(
+            signerName: String,
+            x509Certificate: X509Certificate,
+            curve: Curve = Curve.P_256,
+            algorithm: JWSAlgorithm = JWSAlgorithm.ES256,
+        )  : ISigner {
+            return getSignerOrPutIfAbsent(signerName) {
+                ECSigner(ECKey.parse(x509Certificate), curve, algorithm)
+            }
+        }
     }
 }

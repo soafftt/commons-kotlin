@@ -1,4 +1,4 @@
-package soft.common.jwt.signer
+package soft.common.jwt
 
 import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jwt.JWTClaimsSet
@@ -13,7 +13,6 @@ interface ISigner {
     fun getClaimsSetWithVerify(jwt: String): JWTClaimsSet
 
     fun verify(jwt: String): Boolean
-
 }
 
 fun <T> JWTClaimsSet.toObject(cls: Class<T>): T {

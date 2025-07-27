@@ -1,4 +1,4 @@
-package soft.common.jwt.signer
+package soft.common.jwt
 
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
@@ -53,7 +53,8 @@ abstract class AbstractSigner : ISigner {
     }
 
     override fun getClaimsSetWithVerify(jwt: String): JWTClaimsSet =
-        SignedJWT.parse(jwt).apply { verify(verifier) }.jwtClaimsSet
+        SignedJWT.parse(jwt)
+            .takeIf { it.verify(verifier) }?.jwtClaimsSet ?: throw IllegalAccessError("failed to jwt verify")
 
 
     override fun verify(jwt: String): Boolean =
