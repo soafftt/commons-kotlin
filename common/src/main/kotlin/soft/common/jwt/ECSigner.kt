@@ -7,7 +7,6 @@ import com.nimbusds.jose.crypto.ECDSASigner
 import com.nimbusds.jose.crypto.ECDSAVerifier
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
-import soft.common.jwt.AbstractSigner
 import java.security.cert.X509Certificate
 
 
