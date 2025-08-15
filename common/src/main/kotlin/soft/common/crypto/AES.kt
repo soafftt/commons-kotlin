@@ -2,9 +2,10 @@ package soft.common.crypto
 
 import soft.common.crypto.enums.AESTransformation
 import soft.common.crypto.enums.CryptStringMode
+import soft.common.crypto.enums.toByteArrayFromString
+import soft.common.crypto.enums.toStringFromByteArray
 import soft.common.encoder.Base64Mode
 import soft.common.encoder.toBase64Array
-import soft.common.encoder.toBase64String
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import javax.crypto.Cipher
@@ -28,11 +29,7 @@ fun String.encryptAES(
     mode: CryptStringMode = CryptStringMode.BASE64
 ): String {
     val encryptedBuffer = this.encryptAES(key, transformation, charset)
-    return when (mode) {
-        CryptStringMode.HEX -> encryptedBuffer.toHexString()
-        CryptStringMode.BASE64 -> encryptedBuffer.toBase64String()
-        CryptStringMode.BASE64_MIME -> encryptedBuffer.toBase64String(mode = Base64Mode.MIME)
-    }
+    return mode.toStringFromByteArray(encryptedBuffer)
 }
 
 fun String.encryptAES(
@@ -53,12 +50,7 @@ fun String.decryptAES(
     transformation: AESTransformation,
     fromStringMode: CryptStringMode = CryptStringMode.BASE64
 ): ByteArray {
-    val sourceBuffer = when (fromStringMode) {
-        CryptStringMode.HEX -> this.hexToByteArray()
-        CryptStringMode.BASE64 -> this.toBase64Array()
-        CryptStringMode.BASE64_MIME -> this.toBase64Array(mode = Base64Mode.MIME)
-    }
-
+    val sourceBuffer = fromStringMode.toByteArrayFromString(this)
     return sourceBuffer.decryptAES(key, transformation)
 }
 

@@ -2,6 +2,8 @@ package soft.common.crypto
 
 import soft.common.crypto.enums.CryptStringMode
 import soft.common.crypto.enums.HmacAlgorithm
+import soft.common.crypto.enums.toByteArrayFromString
+import soft.common.crypto.enums.toStringFromByteArray
 import soft.common.encoder.Base64Mode
 import soft.common.encoder.toBase64Array
 import soft.common.encoder.toBase64String
@@ -38,11 +40,7 @@ fun String.computeHmacHash(
     toStringMode: CryptStringMode = CryptStringMode.BASE64
 ): String {
     val hashBuffer = computeHmacHash(key, hmacAlgorithm, charset)
-    return when (toStringMode) {
-        CryptStringMode.BASE64 -> hashBuffer.toBase64String()
-        CryptStringMode.BASE64_MIME -> hashBuffer.toBase64String(mode = Base64Mode.MIME)
-        CryptStringMode.HEX -> hashBuffer.toHexString()
-    }
+    return toStringMode.toStringFromByteArray(hashBuffer)
 }
 
 fun String.computeHmacHash(
@@ -59,11 +57,7 @@ fun ByteArray.computeHash(
     toStringMode: CryptStringMode = CryptStringMode.BASE64
 ): String {
     val hashBuffer = computeHmacHash(key, hmacAlgorithm)
-    return when (toStringMode) {
-        CryptStringMode.BASE64 -> hashBuffer.toBase64String()
-        CryptStringMode.BASE64_MIME -> hashBuffer.toBase64String(mode = Base64Mode.MIME)
-        CryptStringMode.HEX -> hashBuffer.toHexString()
-    }
+    return toStringMode.toStringFromByteArray(hashBuffer)
 }
 
 fun ByteArray.computeHmacHash(
@@ -74,7 +68,10 @@ fun ByteArray.computeHmacHash(
 
 
 private fun ByteArray.makeMac(hmacAlgorithm: HmacAlgorithm): Mac =
-    Mac.getInstance(hmacAlgorithm.algorithmName).also {
+    makeMacInstance(hmacAlgorithm).also {
         val keySpec = SecretKeySpec(this, hmacAlgorithm.name)
         it.init(keySpec)
     }
+
+fun makeMacInstance(hmacAlgorithm: HmacAlgorithm): Mac =
+    Mac.getInstance(hmacAlgorithm.algorithmName)
