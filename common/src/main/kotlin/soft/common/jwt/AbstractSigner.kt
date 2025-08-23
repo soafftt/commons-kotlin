@@ -15,6 +15,9 @@ abstract class AbstractSigner : ISigner {
     protected abstract val algorithm: JWSAlgorithm
 
     companion object {
+        /**
+         * signerName 으로 만들어진 객체를 singerMap 에 담고 있다가 재활용을 위함.
+         */
         private val signerMap: MutableMap<String, ISigner> = mutableMapOf()
         private val lock = ReentrantLock()
 
