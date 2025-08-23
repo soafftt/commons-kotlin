@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat
 import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.*
-import kotlin.math.max
 
 data object DateUtil {
     const val DEFAULT_DATE_FORMAT_WITH_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ss"
