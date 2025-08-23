@@ -6,12 +6,13 @@ import java.text.SimpleDateFormat
 import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.math.max
 
 data object DateUtil {
     const val DEFAULT_DATE_FORMAT_WITH_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ss"
     const val DEFAULT_DATE_FORMAT = "yyyy-MM-dd"
 
-    val defaultZoneId = ZoneId.systemDefault()
+    val defaultZoneId: ZoneId = ZoneId.systemDefault()
 
     fun now(offsetMills: Long = 0): Long {
         return System.currentTimeMillis() + offsetMills
@@ -21,16 +22,11 @@ data object DateUtil {
      * 자주 사용하는 국가? zoneId 의 경우는 enum 으로 관리를 하여 단순 계산이 더 좋습니다.
      * - Instant 객체를 사용하는것은 계산 보다는 무겁기 때문입니다.
      */
-    fun now(zoneId: ZoneId? = null): Long {
-        val now = this.now(offsetMills = 0)
-        return if (zoneId == null) {
-            now
-        } else {
-            Instant.ofEpochMilli(now)
-                .atZone(zoneId)
-                .toInstant()
-                .toEpochMilli()
-        }
+    fun now(zoneId: ZoneId = ZoneId.systemDefault()): Long {
+        return Instant.now()
+            .atZone(zoneId)
+            .toInstant()
+            .toEpochMilli()
     }
 
     fun dayMillis(day: Long = 1): Long {
@@ -60,18 +56,6 @@ data object DateUtil {
     fun parseToLocalDateTime(sourceDate: String, pattern: String = DEFAULT_DATE_FORMAT_WITH_TIMEZONE): LocalDateTime {
         return LocalDateTime.parse(sourceDate, DateTimeFormatter.ofPattern(pattern))
     }
-
-    fun startOfDay(localDateTime: LocalDateTime): LocalDateTime =
-        localDateTime.toLocalDate().atStartOfDay()
-
-    fun endOfDay(localDateTime: LocalDateTime): LocalDateTime =
-        localDateTime.toLocalDate().atTime(LocalTime.MAX)
-
-    fun startOfMonth(localDateTime: LocalDateTime): LocalDateTime =
-        localDateTime.withDayOfMonth(1).toLocalDate().atStartOfDay()
-
-    fun endOfMonth(localDateTime: LocalDateTime): LocalDateTime =
-        localDateTime.withDayOfMonth(localDateTime.toLocalDate().lengthOfMonth()).toLocalDate().atTime(LocalTime.MAX)
 
     fun getZoneId(zoneId: String): ZoneId = ZoneId.of(zoneId)
 
@@ -166,11 +150,30 @@ fun Date.toMillis(): Long =
  * LocalDate → milliseconds
  * - 시간 정보가 없으므로 startOfDay(zone) 기준
  */
+fun LocalDate.toMillis(zonOffset: ZoneOffset = ZoneOffset.UTC): Long =
+    this.atStartOfDay(zonOffset).toInstant().toEpochMilli()
+
 fun LocalDate.toMillis(zone: ZoneId = DateUtil.defaultZoneId): Long =
     this.atStartOfDay(zone).toInstant().toEpochMilli()
 
 /**
  * LocalDateTime → milliseconds
  */
+fun LocalDateTime.toMillis(zonOffset: ZoneOffset = ZoneOffset.UTC): Long =
+    this.toInstant(ZoneOffset.UTC).toEpochMilli()
+
+
 fun LocalDateTime.toMillis(zone: ZoneId = DateUtil.defaultZoneId): Long =
     this.atZone(zone).toInstant().toEpochMilli()
+
+fun LocalDateTime.startOfDay(): LocalDateTime =
+    this.toLocalDate().atStartOfDay()
+
+fun LocalDateTime.endOfDay(maxTime: LocalTime = LocalTime.MAX): LocalDateTime =
+    this.toLocalDate().atTime(maxTime)
+
+fun LocalDateTime.startOfMonth(dayOfMonth: Int = 1): LocalDateTime =
+    this.withDayOfMonth(dayOfMonth).toLocalDate().atStartOfDay()
+
+fun LocalDateTime.endOfMonth(maxTime: LocalTime = LocalTime.MAX): LocalDateTime =
+    this.withDayOfMonth(this.toLocalDate().lengthOfMonth()).toLocalDate().atTime(maxTime)
