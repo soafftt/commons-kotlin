@@ -13,6 +13,35 @@ data object DateUtil {
 
     val defaultZoneId: ZoneId = ZoneId.systemDefault()
 
+    /**
+     * 타임존 계산
+     */
+    fun today(zoneId: ZoneId = defaultZoneId): Long {
+        return LocalDate.now(zoneId)
+            .atStartOfDay(zoneId)
+            .toInstant()
+            .toEpochMilli()
+    }
+
+    /**
+     * offsetHour 를 입력 받기 때문에 Summer 타임을 계산해서 사용해줘야 함.
+     */
+    fun today(offSetHour: Int): Long {
+        val offsetMillis = 1 * 1000 * 60 * 60 * offSetHour
+        val now = now(offsetMillis)
+        val dayMillis = 24L * 60 * 60 * 1000
+
+        return (now / dayMillis) * dayMillis - offsetMillis
+    }
+
+    /**
+     * offsetHour 를 입력 받기 때문에 Summer 타임을 계산해서 사용해줘야 함.
+     */
+    fun now(offSetHour: Int = 0): Long {
+        val offsetMillis = 1 * 1000 * 60 * 60 * offSetHour
+        return now(offsetMillis)
+    }
+
     fun now(offsetMills: Long = 0): Long {
         return System.currentTimeMillis() + offsetMills
     }
