@@ -20,6 +20,7 @@ dependencies {
 
     // CIO engine
     implementation("io.ktor:ktor-client-cio:$ktorClientVersion")
+    implementation("io.ktor:ktor-client-okhttp:$ktorClientVersion")
 
     // JSON + ContentNegotiation
     implementation("io.ktor:ktor-client-content-negotiation:$ktorClientVersion")

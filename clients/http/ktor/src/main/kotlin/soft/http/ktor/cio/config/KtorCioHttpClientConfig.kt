@@ -8,17 +8,16 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import soft.http.ktor.cio.CIOHttpProperties
 
 
-@EnableConfigurationProperties(CIOHttpProperties::class)
-@ConditionalOnProperty(prefix = "http.ktor", name = ["cio"], havingValue = "true")
+@EnableConfigurationProperties(CioHttpProperties::class)
+@ConditionalOnProperty(prefix = "http.ktor.cio", name = ["auto-configuration"], havingValue = "true")
 @Configuration
-class CIOHttpClientConfig(
-    private val cioHttpProperties: CIOHttpProperties,
+class KtorCioHttpClientConfig(
+    private val cioHttpProperties: CioHttpProperties,
 ) {
     @Bean
-    fun cioHttpClient(): HttpClient {
+    fun ktorCioHttpClient(): HttpClient {
         return HttpClient(CIO) {
 
             engine {
@@ -42,5 +41,4 @@ class CIOHttpClientConfig(
             }
         }
     }
-
 }
