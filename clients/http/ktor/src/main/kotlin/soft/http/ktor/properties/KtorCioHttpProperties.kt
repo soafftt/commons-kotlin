@@ -1,10 +1,9 @@
-package soft.http.ktor.cio.config
+package soft.http.ktor.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "http.ktor.cio")
 class CioHttpProperties(
-    val autoConfiguration: Boolean = false,
     val requestTimeout: Long = 15_000,
     val maxConnectionsCount: Int = 1000,
     val pipelining: Boolean = false,
@@ -13,7 +12,7 @@ class CioHttpProperties(
      *  * Dispatchers.IO 를 쓸수는 있으나, thread 공유 상태로 인하여 분리의 복적
      *  * useVtDispatcher = true 인 경우 무시됨
      */
-    val dispatcherIOCount: Int = 64,
+    val cioDispatchers: KtorDispatcherProperties? = null,
     /**
      * virtualThread Dispatcher 사용여부
      */
