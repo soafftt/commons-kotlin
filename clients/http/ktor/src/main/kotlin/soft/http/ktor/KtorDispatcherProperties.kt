@@ -1,4 +1,4 @@
-package soft.http.ktor.properties
+package soft.http.ktor
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -33,4 +33,3 @@ data class KtorDispatcherProperties(
         }
     }
 }
-

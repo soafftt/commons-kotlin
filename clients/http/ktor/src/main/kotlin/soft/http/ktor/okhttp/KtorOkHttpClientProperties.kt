@@ -8,9 +8,9 @@ import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import org.springframework.boot.context.properties.ConfigurationProperties
-import soft.http.ktor.internal.installContentsNavigation
-import soft.http.ktor.internal.installDefaultRequest
-import soft.http.ktor.properties.KtorDispatcherProperties
+import soft.http.ktor.installContentsNavigation
+import soft.http.ktor.installDefaultRequest
+import soft.http.ktor.KtorDispatcherProperties
 import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit

@@ -1,4 +1,4 @@
-package soft.http.ktor.internal
+package soft.http.ktor
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.ktor.client.HttpClientConfig

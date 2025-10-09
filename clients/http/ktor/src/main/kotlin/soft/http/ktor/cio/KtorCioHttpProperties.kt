@@ -5,9 +5,9 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.http.*
 import org.springframework.boot.context.properties.ConfigurationProperties
-import soft.http.ktor.internal.installContentsNavigation
-import soft.http.ktor.internal.installDefaultRequest
-import soft.http.ktor.properties.KtorDispatcherProperties
+import soft.http.ktor.installContentsNavigation
+import soft.http.ktor.installDefaultRequest
+import soft.http.ktor.KtorDispatcherProperties
 
 @ConfigurationProperties(prefix = "http.ktor.cio")
 class CioHttpProperties(
