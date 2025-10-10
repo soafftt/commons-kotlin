@@ -13,7 +13,7 @@ class WebClientConfig(
     private val webClientProperties: WebClientProperties,
 ) {
     @Bean
-    fun makeHttpClient(): WebClient {
+    fun webClient(): WebClient {
         return webClientProperties.makeWebClient()
     }
 }
