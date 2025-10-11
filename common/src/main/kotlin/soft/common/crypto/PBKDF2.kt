@@ -1,5 +1,6 @@
 package soft.common.crypto
 
+import kotlinx.coroutines.CancellationException
 import soft.common.concatenate
 import soft.common.crypto.keygenerator.SecureRandomKeyGenerator
 import soft.common.encoder.UTF8Encoder
@@ -69,6 +70,9 @@ class PBKDF2(
                     arrayOf(salt, it.generateSecret(spec).encoded).concatenate()
                 }
         }.onFailure {
+            if (it is CancellationException)
+                throw it
+
             throw IllegalStateException("Could not create hash", it)
         }.getOrThrow()
 

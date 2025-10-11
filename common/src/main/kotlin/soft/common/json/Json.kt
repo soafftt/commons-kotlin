@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import kotlinx.coroutines.CancellationException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -33,6 +34,9 @@ fun <T> String.readJsonToObject(cls: Class<T>, ignoreException: Boolean = false)
     runCatching {
         objectMapper.readValue(this, cls)
     }.getOrElse { throwable ->
+        if (throwable is CancellationException)
+            throw throwable
+
         if (!ignoreException) {
             throw throwable
         }
@@ -44,6 +48,9 @@ fun String.readJsonToJsonNode(ignoreException: Boolean = false): JsonNode? =
     runCatching {
         objectMapper.readTree(this)
     }.getOrElse {
+        if (it is CancellationException)
+            throw it
+
         if (!ignoreException) {
             throw it
         }
@@ -56,6 +63,9 @@ fun <T> JsonNode.toObject(cls: Class<T>, ignoreException: Boolean = true): T? =
     runCatching {
         objectMapper.treeToValue(this, cls)
     }.getOrElse {
+        if (it is CancellationException)
+            throw it
+
         if (!ignoreException) {
             throw it
         }
@@ -67,6 +77,9 @@ fun <T> String.readJsonToList(cls: Class<T>, ignoreException: Boolean = false): 
     runCatching {
         objectMapper.readValue<List<T>>(this, objectMapper.typeFactory.constructCollectionType(List::class.java, cls))
     }.getOrElse {
+        if (it is CancellationException)
+            throw it
+
         if (!ignoreException) {
             throw it
         }
@@ -79,6 +92,9 @@ fun Any.writeJson(ignoreException: Boolean = false): String =
     runCatching {
         objectMapper.writeValueAsString(this)
     }.getOrElse {
+        if (it is CancellationException)
+            throw it
+
         if (!ignoreException) {
             throw it
         }
