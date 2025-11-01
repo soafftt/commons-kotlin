@@ -7,10 +7,14 @@ import io.r2dbc.pool.ConnectionPool
 import io.r2dbc.pool.ConnectionPoolConfiguration
 import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.spi.ConnectionFactoryOptions
+import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
+import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabaseConfig
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.r2dbc.ConnectionFactoryBuilder
 import org.springframework.data.r2dbc.convert.R2dbcCustomConversions
+import soft.r2dbc.core.CoroutineDispatchers.VT
 import soft.r2dbc.core.config.MySqlDnsConfig.MysqlDnsResolver
 import soft.r2dbc.core.converter.IntegerToBooleanConverter
 import soft.r2dbc.core.converter.LongToBooleanConverter
@@ -27,9 +31,9 @@ private val logger: Logger = LoggerFactory.getLogger("nest.r2dbc.core.R2dbcConne
 // TODO: MYSQL, POSTGRES 등등으로 고쳐야 함. (h2 까지만 하면 될듯)
 fun R2dbcDialect.customConversions(): R2dbcCustomConversions =
     R2dbcCustomConversions.of(
-        dialect,
+        springDialect,
         ArrayList<Any>().apply {
-            addAll(dialect.converters)
+            addAll(springDialect.converters)
             addAll(R2dbcCustomConversions.STORE_CONVERTERS)
             add(IntegerToBooleanConverter())
             add(LongToBooleanConverter())
@@ -120,4 +124,14 @@ fun ConnectionFactory.makePool(poolProperties: PoolProperties): ConnectionFactor
             warmup().subscribe()
         }
     }
+}
+
+fun makeExposedR2dbc(connectionFactory: ConnectionFactory, dialect: R2dbcDialect): R2dbcDatabase {
+    return R2dbcDatabase.connect(
+        connectionFactory = connectionFactory,
+        databaseConfig = R2dbcDatabaseConfig {
+            dispatcher = Dispatchers.VT
+            explicitDialect = dialect.exposedDialect
+        }
+    )
 }
