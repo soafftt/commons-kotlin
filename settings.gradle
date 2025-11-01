@@ -20,7 +20,7 @@ include(":clients:cache:valkey-glide")
 include(":clients:db")
 
 include(":clients:db:r2dbc")
+include(":clients:db:r2dbc:r2dbc-core")
 include(":clients:db:r2dbc:r2dbc-single")
 include(":clients:db:r2dbc:r2dbc-multi")
-include("clients:cache:caffein")
-include 'clients:db:r2dbc:r2dbc-core'
+include(":clients:cache:caffein")

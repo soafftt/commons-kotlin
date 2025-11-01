@@ -1,21 +1,3 @@
-plugins {
-    kotlin("jvm")
-}
-
-group = "soft"
-version = "unspecified"
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    testImplementation(kotlin("test"))
-}
-
-tasks.test {
-    useJUnitPlatform()
-}
-kotlin {
-    jvmToolchain(21)
+    api(project(":clients:db:r2dbc:r2dbc-core"))
 }

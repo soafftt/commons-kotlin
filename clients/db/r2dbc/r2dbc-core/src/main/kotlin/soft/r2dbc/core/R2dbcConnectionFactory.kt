@@ -11,7 +11,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.r2dbc.ConnectionFactoryBuilder
 import org.springframework.data.r2dbc.convert.R2dbcCustomConversions
-import org.springframework.data.r2dbc.dialect.MySqlDialect
 import soft.r2dbc.core.config.MySqlDnsConfig.MysqlDnsResolver
 import soft.r2dbc.core.converter.IntegerToBooleanConverter
 import soft.r2dbc.core.converter.LongToBooleanConverter

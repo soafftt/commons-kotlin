@@ -8,7 +8,6 @@ open class DataSourceProperties {
     val database: String = ""
     val username: String = ""
     val password: String = ""
-    val dataDogTracking:  Boolean = false
     val ssl: Boolean = false
     val factoryType: ConnectionFactoryType = ConnectionFactoryType.SPI
 }
