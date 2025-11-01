@@ -22,6 +22,7 @@ import org.springframework.transaction.ReactiveTransactionManager
 import soft.r2dbc.core.config.MySqlDnsConfig
 import soft.r2dbc.core.config.MySqlDnsConfig.MysqlDnsResolver
 import soft.r2dbc.core.customConversions
+import soft.r2dbc.core.enums.R2dbcImplementation
 import soft.r2dbc.core.makeConnectionFactory
 import soft.r2dbc.core.makeExposedR2dbc
 import soft.r2dbc.core.makePool
@@ -88,6 +89,7 @@ class WriterConnectionFactoryConfig(
             .makePool(writerPoolProperties)
     }
 
+    @ConditionalOnProperty(value = ["r2dbc.implementation"], havingValue = R2dbcImplementation.USE_EXPOSED)
     @Primary
     @Bean
     fun r2dbcDatabase(connectionFactory: ConnectionFactory): R2dbcDatabase {
