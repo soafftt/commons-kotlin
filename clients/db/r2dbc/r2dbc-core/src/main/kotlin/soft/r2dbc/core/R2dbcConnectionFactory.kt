@@ -25,7 +25,9 @@ import soft.r2dbc.core.properties.PoolProperties
 import soft.r2dbc.core.properties.mysql.MySqlTcpProperties
 import java.time.Duration
 
-private const val CONNECTION_FACTORY_DRIVER = "mysql"
+private const val CONNECTION_FACTORY_MYSQL_DRIVER = "mysql"
+private const val CONNECTION_FACTORY_POSTGRES_DRIVER = "postgres"
+
 private val logger: Logger = LoggerFactory.getLogger("nest.r2dbc.core.R2dbcConnection")
 
 // TODO: MYSQL, POSTGRES 등등으로 고쳐야 함. (h2 까지만 하면 될듯)
@@ -46,24 +48,33 @@ fun DataSourceProperties.makeConnectionFactory(
 ): ConnectionFactory =
     when(factoryType) {
         ConnectionFactoryType.MYSQL ->
-            this.makeMySQLConnectionFactory(mySqlTcpProperties)
+            makeMySQLConnectionFactory(mySqlTcpProperties)
         ConnectionFactoryType.SPI -> {
-            if (mySqlTcpProperties != null) {
-                logger.warn("mySqlTcpProperties can only be used with MySqlConnectionFactory. If you need mySqlTcp configuration, please use ConnectionFactoryType.MYSQL.")
-            }
-            if (mysqlDnsCache != null) {
-                logger.warn("Custom DNS can only be used with MySqlConnectionFactory. If you need DNS configuration, please use ConnectionFactoryType.MYSQL.")
-            }
-
-            this.makeDefaultConnectionFactory()
+            warnIfInvalidMySqlSettings(mySqlTcpProperties, mysqlDnsCache)
+            makeDefaultConnectionFactory()
         }
-        else -> throw IllegalArgumentException("Connection factory type $factoryType not supported")
+        ConnectionFactoryType.POSTGRES -> {
+            warnIfInvalidMySqlSettings(mySqlTcpProperties, mysqlDnsCache)
+            makePostgresConnectionFactory() 
+        }
     }
+
+private fun warnIfInvalidMySqlSettings(
+    mySqlTcpProperties: MySqlTcpProperties? = null,
+    mysqlDnsCache: MysqlDnsResolver? = null,
+) {
+    if (mySqlTcpProperties != null) {
+        logger.warn("mySqlTcpProperties can only be used with MySqlConnectionFactory. If you need mySqlTcp configuration, please use ConnectionFactoryType.MYSQL.")
+    }
+    if (mysqlDnsCache != null) {
+        logger.warn("Custom DNS can only be used with MySqlConnectionFactory. If you need DNS configuration, please use ConnectionFactoryType.MYSQL.")
+    }
+}
 
 fun DataSourceProperties.makeDefaultConnectionFactory(): ConnectionFactory =
     ConnectionFactoryBuilder.withOptions(
         ConnectionFactoryOptions.builder()
-            .option(ConnectionFactoryOptions.DRIVER, CONNECTION_FACTORY_DRIVER)
+            .option(ConnectionFactoryOptions.DRIVER, CONNECTION_FACTORY_MYSQL_DRIVER)
             .option(ConnectionFactoryOptions.HOST, host)
             .option(ConnectionFactoryOptions.SSL, ssl)
             .option(ConnectionFactoryOptions.PORT, port)
@@ -79,12 +90,12 @@ fun DataSourceProperties.makeMySQLConnectionFactory(
 ): ConnectionFactory {
     return MySqlConnectionFactory.from(
         MySqlConnectionConfiguration.builder()
-            .host(this.host)
-            .port(this.port)
-            .user(this.username)
-            .password(this.password)
-            .database(this.database)
-            .sslMode(if (this.ssl) SslMode.PREFERRED else SslMode.DISABLED)
+            .host(host)
+            .port(port)
+            .user(username)
+            .password(password)
+            .database(database)
+            .sslMode(if (ssl) SslMode.PREFERRED else SslMode.DISABLED)
             .also { builder ->
                 mySqlTcpProperties?.apply {
                     builder.tcpNoDelay(tcpNoDelay)
@@ -98,6 +109,18 @@ fun DataSourceProperties.makeMySQLConnectionFactory(
             .build()
     )
 }
+
+fun DataSourceProperties.makePostgresConnectionFactory(): ConnectionFactory =
+    ConnectionFactoryBuilder.withOptions(
+        ConnectionFactoryOptions.builder()
+            .option(ConnectionFactoryOptions.DRIVER, CONNECTION_FACTORY_POSTGRES_DRIVER)
+            .option(ConnectionFactoryOptions.HOST, host)
+            .option(ConnectionFactoryOptions.SSL, ssl)
+            .option(ConnectionFactoryOptions.PORT, port)
+            .option(ConnectionFactoryOptions.DATABASE, database)
+            .option(ConnectionFactoryOptions.USER, username)
+            .option(ConnectionFactoryOptions.PASSWORD, password)
+    ).build()
 
 fun ConnectionFactory.makePool(poolProperties: PoolProperties): ConnectionFactory {
     return ConnectionPool(
@@ -113,8 +136,8 @@ fun ConnectionFactory.makePool(poolProperties: PoolProperties): ConnectionFactor
             .maxAcquireTime(Duration.ofMillis(poolProperties.maxAcquireTime))
             .acquireRetry(poolProperties.acquireRetry)
             .also { builder ->
-                if (poolProperties.evictionInterval != null) {
-                    builder.backgroundEvictionInterval(Duration.ofMillis(poolProperties.evictionInterval!!))
+                poolProperties.evictionInterval?.apply {
+                    builder.backgroundEvictionInterval(Duration.ofMillis(this))
                 }
             }
             .build()
