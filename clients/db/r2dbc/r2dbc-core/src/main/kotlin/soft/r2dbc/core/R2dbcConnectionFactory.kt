@@ -16,6 +16,7 @@ import soft.r2dbc.core.config.MySqlDnsConfig.MysqlDnsResolver
 import soft.r2dbc.core.converter.IntegerToBooleanConverter
 import soft.r2dbc.core.converter.LongToBooleanConverter
 import soft.r2dbc.core.enums.ConnectionFactoryType
+import soft.r2dbc.core.enums.R2dbcDialect
 import soft.r2dbc.core.properties.DataSourceProperties
 import soft.r2dbc.core.properties.PoolProperties
 import soft.r2dbc.core.properties.mysql.MySqlTcpProperties
@@ -25,11 +26,11 @@ private const val CONNECTION_FACTORY_DRIVER = "mysql"
 private val logger: Logger = LoggerFactory.getLogger("nest.r2dbc.core.R2dbcConnection")
 
 // TODO: MYSQL, POSTGRES 등등으로 고쳐야 함. (h2 까지만 하면 될듯)
-val defaultR2dbcCustomConversions: R2dbcCustomConversions =
+fun R2dbcDialect.customConversions(): R2dbcCustomConversions =
     R2dbcCustomConversions.of(
-        MySqlDialect.INSTANCE,
+        dialect,
         ArrayList<Any>().apply {
-            addAll(MySqlDialect.INSTANCE.converters)
+            addAll(dialect.converters)
             addAll(R2dbcCustomConversions.STORE_CONVERTERS)
             add(IntegerToBooleanConverter())
             add(LongToBooleanConverter())

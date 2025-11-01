@@ -3,12 +3,12 @@ package soft.r2dbc.core.properties
 import soft.r2dbc.core.enums.ConnectionFactoryType
 
 open class DataSourceProperties {
-    var host: String = ""
-    var port: Int = 0
-    var database: String = ""
-    var username: String = ""
-    var password: String = ""
-    var dataDogTracking:  Boolean = false
-    var ssl: Boolean = false
-    var factoryType: ConnectionFactoryType = ConnectionFactoryType.SPI
+    val host: String = ""
+    val port: Int = 0
+    val database: String = ""
+    val username: String = ""
+    val password: String = ""
+    val dataDogTracking:  Boolean = false
+    val ssl: Boolean = false
+    val factoryType: ConnectionFactoryType = ConnectionFactoryType.SPI
 }
