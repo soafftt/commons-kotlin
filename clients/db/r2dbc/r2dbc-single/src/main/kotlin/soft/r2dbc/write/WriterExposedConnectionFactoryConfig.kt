@@ -1,6 +1,5 @@
 package soft.r2dbc.write
 
-import io.r2dbc.spi.ConnectionFactory
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
@@ -11,7 +10,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import soft.r2dbc.core.config.MySqlDnsConfig
 import soft.r2dbc.core.config.MySqlDnsConfig.MysqlDnsResolver
-import soft.r2dbc.core.enums.R2dbcImplementation
 import soft.r2dbc.core.makeConnectionFactory
 import soft.r2dbc.core.makeExposedR2dbc
 import soft.r2dbc.core.makePool
