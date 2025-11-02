@@ -5,6 +5,7 @@ import io.asyncer.r2dbc.mysql.MySqlConnectionFactory
 import io.asyncer.r2dbc.mysql.constant.SslMode
 import io.r2dbc.pool.ConnectionPool
 import io.r2dbc.pool.ConnectionPoolConfiguration
+import io.r2dbc.spi.ConnectionFactories
 import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.spi.ConnectionFactoryOptions
 import kotlinx.coroutines.Dispatchers
@@ -12,7 +13,6 @@ import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabaseConfig
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.boot.r2dbc.ConnectionFactoryBuilder
 import org.springframework.data.r2dbc.convert.R2dbcCustomConversions
 import soft.r2dbc.core.CoroutineDispatchers.VT
 import soft.r2dbc.core.config.MySqlDnsConfig.MysqlDnsResolver
@@ -72,7 +72,7 @@ private fun warnIfInvalidMySqlSettings(
 }
 
 fun DataSourceProperties.makeDefaultConnectionFactory(): ConnectionFactory =
-    ConnectionFactoryBuilder.withOptions(
+    ConnectionFactories.get(
         ConnectionFactoryOptions.builder()
             .option(ConnectionFactoryOptions.DRIVER, CONNECTION_FACTORY_MYSQL_DRIVER)
             .option(ConnectionFactoryOptions.HOST, host)
@@ -81,8 +81,8 @@ fun DataSourceProperties.makeDefaultConnectionFactory(): ConnectionFactory =
             .option(ConnectionFactoryOptions.DATABASE, database)
             .option(ConnectionFactoryOptions.USER, username)
             .option(ConnectionFactoryOptions.PASSWORD, password)
-    ).build()
-
+            .build()
+    )
 
 fun DataSourceProperties.makeMySQLConnectionFactory(
     mySqlTcpProperties: MySqlTcpProperties? = null,
@@ -111,7 +111,7 @@ fun DataSourceProperties.makeMySQLConnectionFactory(
 }
 
 fun DataSourceProperties.makePostgresConnectionFactory(): ConnectionFactory =
-    ConnectionFactoryBuilder.withOptions(
+    ConnectionFactories.get(
         ConnectionFactoryOptions.builder()
             .option(ConnectionFactoryOptions.DRIVER, CONNECTION_FACTORY_POSTGRES_DRIVER)
             .option(ConnectionFactoryOptions.HOST, host)
@@ -120,7 +120,8 @@ fun DataSourceProperties.makePostgresConnectionFactory(): ConnectionFactory =
             .option(ConnectionFactoryOptions.DATABASE, database)
             .option(ConnectionFactoryOptions.USER, username)
             .option(ConnectionFactoryOptions.PASSWORD, password)
-    ).build()
+            .build()
+    )
 
 fun ConnectionFactory.makePool(poolProperties: PoolProperties): ConnectionFactory {
     return ConnectionPool(

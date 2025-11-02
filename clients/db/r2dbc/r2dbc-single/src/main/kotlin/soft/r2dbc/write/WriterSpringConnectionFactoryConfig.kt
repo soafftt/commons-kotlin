@@ -1,14 +1,14 @@
-package soft.r2dbc.read
+package soft.r2dbc.write
 
 import io.r2dbc.spi.ConnectionFactory
-import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.DependsOn
+import org.springframework.context.annotation.Primary
 import org.springframework.data.r2dbc.config.AbstractR2dbcConfiguration
 import org.springframework.data.r2dbc.convert.MappingR2dbcConverter
 import org.springframework.data.r2dbc.convert.R2dbcCustomConversions
@@ -22,41 +22,42 @@ import org.springframework.transaction.ReactiveTransactionManager
 import soft.r2dbc.core.config.MySqlDnsConfig
 import soft.r2dbc.core.config.MySqlDnsConfig.MysqlDnsResolver
 import soft.r2dbc.core.customConversions
-import soft.r2dbc.core.enums.R2dbcImplementation
 import soft.r2dbc.core.makeConnectionFactory
-import soft.r2dbc.core.makeExposedR2dbc
 import soft.r2dbc.core.makePool
 import soft.r2dbc.core.properties.R2dbcConfigurationProperties
 import soft.r2dbc.core.properties.mysql.MySqlTcpProperties
-import soft.r2dbc.read.properties.ReaderDataSourceProperties
-import soft.r2dbc.read.properties.ReaderPoolProperties
+import soft.r2dbc.write.properties.WriterDataSourceProperties
+import soft.r2dbc.write.properties.WriterPoolProperties
 
 @EnableConfigurationProperties(
     value = [
         R2dbcConfigurationProperties::class,
-        ReaderDataSourceProperties::class,
-        ReaderPoolProperties::class,
+        WriterDataSourceProperties::class,
+        WriterPoolProperties::class,
         MySqlTcpProperties::class,
         MySqlDnsConfig::class
     ]
 )
 @Configuration
-@ConditionalOnProperty(value = ["r2dbc.datasource.reader"])
-class ReaderConnectionFactoryConfig(
+@ConditionalOnExpression("'$(r2dbc.database.writer:_MISS_)' != '_MISS_'")
+@ConditionalOnProperty(value = ["r2dbc.datasource.writer"])
+class WriterSpringConnectionFactoryConfig(
     private val r2DbcConfigurationProperties: R2dbcConfigurationProperties,
-    private val readerDataSourceProperties: ReaderDataSourceProperties,
-    private val readerPoolProperties: ReaderPoolProperties,
+    private val writerDataSourceProperties: WriterDataSourceProperties,
+    private val writerPoolProperties: WriterPoolProperties,
     @param:Autowired(required = false) private val mySqlTcpProperties: MySqlTcpProperties? = null,
     @param:Autowired(required = false) private val mysqlDnsResolver: MysqlDnsResolver? = null
 ) : AbstractR2dbcConfiguration() {
 
+    @Primary
     @Bean
-    @DependsOn("readerConnectionFactory")
-    fun readerR2dbcEntityOperations(@Qualifier("readerConnectionFactory") connectionFactory: ConnectionFactory): R2dbcEntityOperations {
+    @DependsOn("connectionFactory")
+    fun readerR2dbcEntityOperations(connectionFactory: ConnectionFactory): R2dbcEntityOperations {
         val databaseClient: DatabaseClient = DatabaseClient.create(connectionFactory)
         return R2dbcEntityTemplate(databaseClient, MySqlDialect.INSTANCE)
     }
 
+    @Primary
     @Bean
     override fun r2dbcConverter(
         mappingContext: R2dbcMappingContext,
@@ -66,30 +67,24 @@ class ReaderConnectionFactoryConfig(
     }
 
 
+    @Primary
     @Bean
     override fun r2dbcCustomConversions(): R2dbcCustomConversions {
         return r2DbcConfigurationProperties.dialect.customConversions()
     }
 
+    @Primary
     @Bean(value = ["readerTransactionManager"])
-    @DependsOn("readerConnectionFactory")
-    fun readTransactionManager(@Qualifier("readerConnectionFactory") connectionFactory: ConnectionFactory): ReactiveTransactionManager {
-        return R2dbcTransactionManager(connectionFactory).apply {
-            this.isEnforceReadOnly = true
-        }
+    @DependsOn("connectionFactory")
+    fun readTransactionManager(connectionFactory: ConnectionFactory): ReactiveTransactionManager {
+        return R2dbcTransactionManager(connectionFactory)
     }
 
-    @Bean("readerConnectionFactory")
+    @Primary
+    @Bean
     override fun connectionFactory(): ConnectionFactory {
-        return readerDataSourceProperties
+        return writerDataSourceProperties
             .makeConnectionFactory(mySqlTcpProperties, mysqlDnsResolver)
-            .makePool(readerPoolProperties)
-    }
-
-    @ConditionalOnProperty(value = ["r2dbc.implementation"], havingValue = R2dbcImplementation.USE_EXPOSED)
-    @Bean("readerR2dbcDatabase")
-    @DependsOn("readerConnectionFactory")
-    fun r2dbcDatabase(@Qualifier("readerConnectionFactory") connectionFactory: ConnectionFactory): R2dbcDatabase {
-        return makeExposedR2dbc(connectionFactory, r2DbcConfigurationProperties.dialect)
+            .makePool(writerPoolProperties)
     }
 }

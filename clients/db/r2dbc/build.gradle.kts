@@ -22,8 +22,8 @@ allprojects {
     }
 
     dependencies {
-        implementation("org.springframework.boot:spring-boot-starter:3.4.0")
-        api("org.springframework.boot:spring-boot-starter-data-r2dbc:3.4.0")
+        implementation("org.springframework.boot:spring-boot-starter")
+        api("org.springframework.boot:spring-boot-starter-data-r2dbc")
     }
 
     tasks.withType<Jar>() {
