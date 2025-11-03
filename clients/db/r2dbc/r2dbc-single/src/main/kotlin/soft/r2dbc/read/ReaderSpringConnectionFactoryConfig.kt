@@ -19,6 +19,7 @@ import org.springframework.data.r2dbc.mapping.R2dbcMappingContext
 import org.springframework.r2dbc.connection.R2dbcTransactionManager
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.transaction.ReactiveTransactionManager
+import soft.r2dbc.R2dbcPoolProperties
 import soft.r2dbc.core.config.MySqlDnsConfig
 import soft.r2dbc.core.config.MySqlDnsConfig.MysqlDnsResolver
 import soft.r2dbc.core.customConversions
@@ -35,6 +36,7 @@ import soft.r2dbc.read.properties.ReaderPoolProperties
         R2dbcConfigurationProperties::class,
         ReaderDataSourceProperties::class,
         ReaderPoolProperties::class,
+        R2dbcPoolProperties::class,
         MySqlTcpProperties::class,
         MySqlDnsConfig::class
     ]
@@ -45,10 +47,17 @@ import soft.r2dbc.read.properties.ReaderPoolProperties
 class ReaderSpringConnectionFactoryConfig(
     private val r2DbcConfigurationProperties: R2dbcConfigurationProperties,
     private val readerDataSourceProperties: ReaderDataSourceProperties,
-    private val readerPoolProperties: ReaderPoolProperties,
+    private val readerPoolProperties: ReaderPoolProperties? = null,
+    private val r2dbcPoolProperties: R2dbcPoolProperties? = null,
     @param:Autowired(required = false) private val mySqlTcpProperties: MySqlTcpProperties? = null,
     @param:Autowired(required = false) private val mysqlDnsResolver: MysqlDnsResolver? = null
 ) : AbstractR2dbcConfiguration() {
+
+    init {
+        require(readerPoolProperties != null || r2dbcPoolProperties != null ) {
+            "A general pool configuration or a reader-specific pool configuration is required."
+        }
+    }
 
     @Bean
     @DependsOn("readerConnectionFactory")
@@ -83,7 +92,13 @@ class ReaderSpringConnectionFactoryConfig(
     override fun connectionFactory(): ConnectionFactory {
         return readerDataSourceProperties
             .makeConnectionFactory(mySqlTcpProperties, mysqlDnsResolver)
-            .makePool(readerPoolProperties)
+            .let {
+                when {
+                    readerPoolProperties != null -> it.makePool(readerPoolProperties)
+                    r2dbcPoolProperties != null -> it.makePool(r2dbcPoolProperties)
+                    else -> throw IllegalArgumentException("A general pool configuration or a reader-specific pool configuration is required.")
+                }
+            }
     }
 
 

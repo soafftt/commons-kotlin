@@ -19,6 +19,7 @@ import org.springframework.data.r2dbc.mapping.R2dbcMappingContext
 import org.springframework.r2dbc.connection.R2dbcTransactionManager
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.transaction.ReactiveTransactionManager
+import soft.r2dbc.R2dbcPoolProperties
 import soft.r2dbc.core.config.MySqlDnsConfig
 import soft.r2dbc.core.config.MySqlDnsConfig.MysqlDnsResolver
 import soft.r2dbc.core.customConversions
@@ -34,6 +35,7 @@ import soft.r2dbc.write.properties.WriterPoolProperties
         R2dbcConfigurationProperties::class,
         WriterDataSourceProperties::class,
         WriterPoolProperties::class,
+        R2dbcPoolProperties::class,
         MySqlTcpProperties::class,
         MySqlDnsConfig::class
     ]
@@ -44,10 +46,17 @@ import soft.r2dbc.write.properties.WriterPoolProperties
 class WriterSpringConnectionFactoryConfig(
     private val r2DbcConfigurationProperties: R2dbcConfigurationProperties,
     private val writerDataSourceProperties: WriterDataSourceProperties,
-    private val writerPoolProperties: WriterPoolProperties,
+    private val writerPoolProperties: WriterPoolProperties? = null,
+    private val r2dbcPoolProperties: R2dbcPoolProperties? = null,
     @param:Autowired(required = false) private val mySqlTcpProperties: MySqlTcpProperties? = null,
-    @param:Autowired(required = false) private val mysqlDnsResolver: MysqlDnsResolver? = null
+    @param:Autowired(required = false) private val mysqlDnsResolver: MysqlDnsResolver? = null,
 ) : AbstractR2dbcConfiguration() {
+
+    init {
+        require(writerPoolProperties != null || r2dbcPoolProperties != null ) {
+            "A general pool configuration or a writer-specific pool configuration is required."
+        }
+    }
 
     @Primary
     @Bean
@@ -85,6 +94,12 @@ class WriterSpringConnectionFactoryConfig(
     override fun connectionFactory(): ConnectionFactory {
         return writerDataSourceProperties
             .makeConnectionFactory(mySqlTcpProperties, mysqlDnsResolver)
-            .makePool(writerPoolProperties)
+            .let {
+                when {
+                    writerPoolProperties != null -> it.makePool(writerPoolProperties)
+                    r2dbcPoolProperties != null -> it.makePool(r2dbcPoolProperties)
+                    else -> throw IllegalArgumentException("A general pool configuration or a writer-specific pool configuration is required.")
+                }
+            }
     }
 }
