@@ -11,7 +11,7 @@ Client 구성의 경우 일부 기능에 있어서는 의존성 관리를 위하
 프로젝트는 kotlin 2.1 을 기반으로 하고 있기 때문에 Repo 에 포함된 모든 프로젝트는 아래와 같은 plugin 이 공통으로 apply 되어 있습니다.
 ```groovy
 plugins {
-    kotlin("jvm") version "2.1.0"
+    kotlin("jvm") version "2.2.21"
 }
 
 allprojects {

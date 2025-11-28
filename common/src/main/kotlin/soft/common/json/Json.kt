@@ -1,34 +1,34 @@
 package soft.common.json
 
-import com.fasterxml.jackson.core.JsonFactory
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import kotlinx.coroutines.CancellationException
+import tools.jackson.core.json.JsonFactory
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.databind.module.SimpleModule
+import tools.jackson.datatype.jsr310.ser.LocalDateSerializer
+import tools.jackson.module.kotlin.KotlinModule
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 const val JSON_INITIALIZE = "{}"
 
-val objectMapper : ObjectMapper by lazy(LazyThreadSafetyMode.PUBLICATION) {
-    ObjectMapper(jsonFactory)
-        .registerModules(
+val objectMapper: ObjectMapper by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    JsonMapper.builder(jsonFactory)
+        .addModules(
             KotlinModule.Builder().build(),
-            JavaTimeModule().apply {
-                addSerializer(
+            SimpleModule()
+                .addSerializer(
                     LocalDate::class.java,
                     LocalDateSerializer(
                         DateTimeFormatter.ofPattern("yyyy-MM-dd")
                     )
                 )
-            }
         )
-
+        .build()
 }
 
-private val jsonFactory : JsonFactory by lazy(LazyThreadSafetyMode.PUBLICATION) { JsonFactory() }
+private val jsonFactory: JsonFactory by lazy(LazyThreadSafetyMode.PUBLICATION) { JsonFactory() }
 
 fun <T> String.readJsonToObject(cls: Class<T>, ignoreException: Boolean = false): T? =
     runCatching {
