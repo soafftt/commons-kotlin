@@ -1,7 +1,9 @@
 plugins {
     kotlin("jvm")
-    kotlin("plugin.spring") version "1.9.25"
-    id("org.springframework.boot") version "3.4.0"
+    id("org.springframework.boot") version "4.0.0"
+    id("io.spring.dependency-management") version "1.1.7"
+    id("java-library")
+    kotlin("plugin.spring") version "2.2.21"
 }
 
 group = "soft"
@@ -14,7 +16,8 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter:3.4.0")
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter")
     // Ktor Client core
     implementation("io.ktor:ktor-client-core:$ktorClientVersion")
 

@@ -1,15 +1,22 @@
 plugins {
-    kotlin("jvm")
+    id("org.springframework.boot") version "4.0.0"
+    id("io.spring.dependency-management") version "1.1.7"
+    id("java-library")
+    id("com.google.osdetector") version "1.7.3"
+    kotlin("plugin.spring") version "2.2.21"
 }
 
 group = "soft"
-version = "unspecified"
 
 repositories {
     mavenCentral()
 }
 
+
 dependencies {
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation(group = "io.valkey", name = "valkey-glide", version="2.2.0", classifier = "${osdetector.classifier}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.10.2")
     testImplementation(kotlin("test"))
 }
 
