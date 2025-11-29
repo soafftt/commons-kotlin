@@ -1,8 +1,8 @@
 plugins {
-    id("org.springframework.boot") version "3.4.0"
+    id("org.springframework.boot") version "4.0.0"
     id("io.spring.dependency-management") version "1.1.7"
     id("java-library")
-    kotlin("plugin.spring") version "2.1.10"
+    kotlin("plugin.spring") version "2.2.21"
 }
 
 group = "soft"
@@ -36,6 +36,6 @@ allprojects {
 
 
     kotlin {
-        jvmToolchain(21)
+        jvmToolchain(24)
     }
 }

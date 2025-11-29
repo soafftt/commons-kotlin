@@ -1,7 +1,8 @@
 package soft.r2dbc.core.config
 
 import io.netty.channel.EventLoop
-import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.MultiThreadIoEventLoopGroup
+import io.netty.channel.nio.NioIoHandler
 import io.netty.channel.socket.nio.NioDatagramChannel
 import io.netty.channel.socket.nio.NioSocketChannel
 import io.netty.resolver.AddressResolver
@@ -31,7 +32,7 @@ class MySqlDnsConfig(
         with(mySQLDnsCacheProperties) {
             val dnsCache = DefaultDnsCache(minTtl, maxTtl, negativeTtl)
             val cNameCache = DefaultDnsCnameCache(minTtl, maxTtl)
-            val nioEventLoop = NioEventLoopGroup(ioCount).next()
+            val nioEventLoop = MultiThreadIoEventLoopGroup(ioCount, NioIoHandler.newFactory()).next()
 
             val dnsNameResolver = DnsNameResolverBuilder(nioEventLoop)
                 .resolveCache(dnsCache)
