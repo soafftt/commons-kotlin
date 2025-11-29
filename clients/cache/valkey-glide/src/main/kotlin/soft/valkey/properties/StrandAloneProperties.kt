@@ -8,6 +8,7 @@ import glide.api.models.configuration.ProtocolVersion
 import glide.api.models.configuration.ReadFrom
 import glide.api.models.configuration.StandaloneSubscriptionConfiguration
 import kotlinx.coroutines.future.await
+import org.springframework.boot.context.properties.ConfigurationProperties
 
 interface IStandAloneProperties {
     val connectionTimeoutMills: Int
@@ -51,6 +52,10 @@ interface IStandAloneProperties {
         }
     }
 }
+
+data class MultiStandAloneProperties(
+    val standAlone: Map<String, StrandAloneProperties>
+)
 
 data class StrandAloneProperties(
     val address: Address,
