@@ -1,4 +1,4 @@
-package soft.soft.valkey
+package soft.soft.valkey.command
 
 import glide.api.GlideClient
 import glide.api.commands.BitmapBaseCommands
@@ -13,8 +13,7 @@ import glide.api.commands.SetBaseCommands
 import glide.api.commands.SortedSetBaseCommands
 import glide.api.commands.StreamBaseCommands
 import glide.api.commands.StringBaseCommands
-import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.DisposableBean
+import soft.soft.valkey.ValkeyBaseCommands
 
 class ValkeyCommands private constructor(
     val bitmapCommands: BitmapBaseCommands,
@@ -29,14 +28,11 @@ class ValkeyCommands private constructor(
     val geospatialIndicesCommands: GeospatialIndicesBaseCommands,
     val scriptingAndFunctionsCommands: ScriptingAndFunctionsBaseCommands,
     val pubSubCommands: PubSubBaseCommands,
-    private val glideClient: GlideClient
-) : DisposableBean {
-
+    glideClient: GlideClient
+) : ValkeyBaseCommands(glideClient) {
     companion object {
-
-        private val logger = LoggerFactory.getLogger(ValkeyCommands::class.java)
-
         fun from(glideClient: GlideClient): ValkeyCommands {
+            logger.warn("Do not use SUBSCRIBE with ValkeyCommands.It can cause contention with regular (non-subscription) commands.")
             return ValkeyCommands(
                 glideClient as BitmapBaseCommands,
                 glideClient as GenericBaseCommands,
@@ -52,14 +48,6 @@ class ValkeyCommands private constructor(
                 glideClient as PubSubBaseCommands,
                 glideClient
             )
-        }
-    }
-
-    override fun destroy() {
-        try {
-            glideClient.close()
-        } catch (e: Exception) {
-            logger.error(e.message, e)
         }
     }
 }

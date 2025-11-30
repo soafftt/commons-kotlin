@@ -16,8 +16,10 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation(group = "io.valkey", name = "valkey-glide", version="2.2.0", classifier = "${osdetector.classifier}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.10.2")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.10.2")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
     testImplementation(kotlin("test"))
+    testImplementation("org.springframework.boot:spring-boot-starter-test:4.0.0")
 }
 
 tasks.test {

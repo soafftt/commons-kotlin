@@ -8,7 +8,9 @@ import glide.api.models.configuration.ProtocolVersion
 import glide.api.models.configuration.ReadFrom
 import glide.api.models.configuration.StandaloneSubscriptionConfiguration
 import kotlinx.coroutines.future.await
-import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.bind.ConstructorBinding
+import soft.soft.valkey.ValkeyMessageSubscription
+import javax.naming.ConfigurationException
 
 interface IStandAloneProperties {
     val connectionTimeoutMills: Int
@@ -53,15 +55,14 @@ interface IStandAloneProperties {
     }
 }
 
-data class MultiStandAloneProperties(
-    val standAlone: Map<String, StrandAloneProperties>
-)
 
-data class StrandAloneProperties(
+
+
+data class StrandAloneProperties @ConstructorBinding constructor(
     val address: Address,
-    override val connectionTimeoutMills: Int,
+    override val connectionTimeoutMills: Int = 1000,
     override val credentials: Credential? = null,
-    override val useSsl: Boolean,
+    override val useSsl: Boolean = false,
     override val protocol: ProtocolVersion = ProtocolVersion.RESP3,
     override val reconnectStrategy: ConnectionRetryStrategy? = null,
     override val clientAZ: String? = null,
@@ -78,6 +79,10 @@ data class StrandAloneProperties(
             .build()
     }
 }
+
+data class MultiStandAloneProperties(
+    val multi: Map<String, StrandAloneProperties>
+)
 
 /**
  * PubSub 은 클라이언트 분리가 유리
@@ -102,8 +107,20 @@ data class StandAlonePubSubProperties(
     override val dataBaseId: Int? = null,
     val subscribeKeys: List<String>
 ) : IStandAloneProperties {
+    private lateinit var subscriptionCallBack: ValkeyMessageSubscription
+
+    val messageSubscription: ValkeyMessageSubscription
+        get() = subscriptionCallBack
+
+    fun registerMessageCallback(callBack: ValkeyMessageSubscription) {
+        subscriptionCallBack = callBack
+    }
 
     override fun toGlideConfiguration(): GlideClientConfiguration {
+        if (!::subscriptionCallBack.isInitialized) {
+            throw ConfigurationException("Subscribe callback is not set")
+        }
+
         return makeGlideConfigurationBuilder()
             .address(address.toNodeAddress())
             .subscriptionConfiguration(
@@ -112,6 +129,7 @@ data class StandAlonePubSubProperties(
                         StandaloneSubscriptionConfiguration.PubSubChannelMode.EXACT,
                         subscribeKeys.map { GlideString.of(it) }.toSet()
                     )
+                    .callback(subscriptionCallBack::messageCallback)
                     .build()
             )
             .build()
