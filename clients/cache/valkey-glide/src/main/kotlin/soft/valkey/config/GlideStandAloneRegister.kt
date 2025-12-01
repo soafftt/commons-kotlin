@@ -3,7 +3,7 @@ package soft.soft.valkey.config
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.BeanRegistry
 import org.springframework.core.env.Environment
-import soft.soft.valkey.DefaultMessageSubscription
+import soft.soft.valkey.MessageSubscription
 import soft.soft.valkey.command.ValKeyPubSubCommand
 import soft.soft.valkey.command.ValkeyCommands
 import soft.soft.valkey.properties.MultiStandAloneProperties
@@ -65,10 +65,10 @@ class GlideStandAlonePubSubRegistrar : AbstractBeanRegistrar() {
     override fun register(registry: BeanRegistry, env: Environment) {
         val properties = bindProperties<StandAlonePubSubProperties>(PROPERTY_KEY, env)
             .apply {
-                registerMessageCallback(DefaultMessageSubscription())
+                registerMessageCallback(MessageSubscription())
             }
 
-        registry.registerBean("valkeyPubSub", ValKeyPubSubCommand::class.java) { spec ->
+        registry.registerBean("valkeyPubSubCommand", ValKeyPubSubCommand::class.java) { spec ->
             spec.supplier { context ->
                 runBlocking {
                     ValKeyPubSubCommand.from(properties.toGlideClient(), properties.messageSubscription)

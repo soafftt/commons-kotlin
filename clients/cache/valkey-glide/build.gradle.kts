@@ -20,6 +20,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     testImplementation(kotlin("test"))
     testImplementation("org.springframework.boot:spring-boot-starter-test:4.0.0")
+    testImplementation("org.springframework.boot:spring-boot-starter-webflux:4.0.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 }
 
 tasks.test {

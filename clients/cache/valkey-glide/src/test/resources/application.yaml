@@ -1,6 +1,10 @@
 valkey:
   standalone:
-    address:
-      host: 127.0.0.1
-      port: 6379
-
+    pubsub:
+      subscribe-keys:
+        - TEST
+      address:
+        host: 127.0.0.1
+        port: 6379
+      use-ssl: false
+      connection-timeout-mills: 1000

@@ -24,7 +24,7 @@ class ValKeyPubSubCommand private constructor(
         }
     }
 
-    override suspend fun pipeline(timeout: Int, prepare: (Batch) -> Unit): Array<Any> {
+    override suspend fun pipeline(timeout: Int, riseError: Boolean, prepare: (Batch) -> Unit): Array<Any> {
         throw UnsupportedOperationException("ValKeyPubSubCommand does not support pipelining")
     }
 }
